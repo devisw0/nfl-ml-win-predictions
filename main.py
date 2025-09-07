@@ -3,8 +3,7 @@ import numpy as np
 
 df = pd.read_csv('2017-2025_scores.csv')
 
-df = df.drop(['GameStatus','Day','AwayRecord','AwayScore','HomeRecord',
-              'HomeScore','AwaySeeding',	'HomeSeeding',
+df = df.drop(['GameStatus','Day','AwayRecord','HomeRecord','AwaySeeding',	'HomeSeeding',
               'PostSeason'], axis = 1)
 
 no_preseason = df[~df['Week'].str.contains('Preseason', case=False, na=False)]
@@ -20,8 +19,9 @@ season_and_postseason['Date'] = pd.to_datetime(
     errors='coerce'
 )
 
+season_and_postseason['Month'] = season_and_postseason['Date'].dt.month
+season_and_postseason['Day'] = season_and_postseason['Date'].dt.day
 
-season_and_postseason['Date'] = season_and_postseason['Date'].to_datetime(format = '%m/%d', errors = 'coerce')
 #format is the format of our input string, errors=coerce means treat as a Nat, not a time (like Nan)
 print(season_and_postseason.head())
 
