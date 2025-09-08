@@ -24,8 +24,9 @@ season_and_postseason['Date'] = pd.to_datetime(
 season_and_postseason['Month'] = season_and_postseason['Date'].dt.month
 season_and_postseason['Day'] = season_and_postseason['Date'].dt.day
 
-season_and_postseason['Alter Month'] = season_and_postseason['Month'].isin([1,2]) 
+season_and_postseason['Is Jan or Feb'] = season_and_postseason['Month'].isin([1,2]) 
 
+season_and_postseason['game year'] = season_and_postseason['Season']
 
 
 print(season_and_postseason.head())
