@@ -18,10 +18,15 @@ season_and_postseason['Date'] = pd.to_datetime(
     format='%m/%d',
     errors='coerce'
 )
+#turning our dates into a canonical stirng for datetime accessors etc.
+#format is the format of our input string, errors=coerce means treat as a Nat, not a time (like Nan)
 
 season_and_postseason['Month'] = season_and_postseason['Date'].dt.month
 season_and_postseason['Day'] = season_and_postseason['Date'].dt.day
 
-#format is the format of our input string, errors=coerce means treat as a Nat, not a time (like Nan)
+season_and_postseason['Alter Month'] = season_and_postseason['Month'].isin([1,2]) 
+
+
+
 print(season_and_postseason.head())
 
