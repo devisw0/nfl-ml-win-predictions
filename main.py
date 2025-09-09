@@ -28,6 +28,8 @@ season_and_postseason['Is Jan or Feb'] = season_and_postseason['Month'].isin([1,
 
 season_and_postseason['game year'] = season_and_postseason['Season']
 
+season_and_postseason['game year'] = season_and_postseason.loc['Is Jan or Feb', 'game year'] + 1
+
 
 print(season_and_postseason.head())
 
