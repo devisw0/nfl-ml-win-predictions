@@ -41,5 +41,11 @@ season_and_postseason = season_and_postseason.dropna(subset = ['game_date'])
 
 season_and_postseason = season_and_postseason.sort_values(by = 'game_date')
 
+season_and_postseason = season_and_postseason.reset_index(drop = True)
+
+season_and_postseason['HomeWinBoolean'] = season_and_postseason['HomeScore'] > season_and_postseason['AwayScore']
+
+season_and_postseason['HomeWinBoolean'] = season_and_postseason['HomeWinBoolean'].astype(int)
+
 print(season_and_postseason.head())
 
