@@ -80,3 +80,28 @@ print(season_and_postseason['home_win_binary'].value_counts(normalize=True).rena
 
 games = season_and_postseason.reset_index(names='game_id')
 #resets index and moves the old one to a column named game_id
+
+#we want to create home and away views such that we can create X data for the model
+#we take the columns we want specifically and copy the data
+#single brackets in pandas returns a series and duouble brakcers returns the dataframe
+#this is because we are using the list (inner []) as the input for the df
+home_view = games[['game_id','game_date','Season','HomeTeam','AwayTeam','HomeScore','AwayScore']].copy()
+away_view = games[['game_id','game_date','Season','HomeTeam','AwayTeam','HomeScore','AwayScore']].copy()
+
+
+
+
+home_view = home_view.rename(columns={'HomeTeam':'team','AwayTeam':'opponent',
+                                      'HomeScore':'points_for','AwayScore':'points_against'},
+                                      inplace=False)
+
+away_view = away_view.rename(columns={'HomeTeam':'opponent','AwayTeam':'team',
+                                      'HomeScore':'points_against','AwayScore':'points_for'},
+                                      inplace=False)
+
+
+
+home_view['is_home'] = 1
+away_view['is_home'] = 0
+
+game = pd.concat([home_view,away_view], axis = 0)
