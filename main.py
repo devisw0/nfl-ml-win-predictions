@@ -90,7 +90,8 @@ away_view = games[['game_id','game_date','Season','HomeTeam','AwayTeam','HomeSco
 
 
 
-
+#from the copies just replacing the names
+#inplace = false to return a new df instead of making edits to our copies
 home_view = home_view.rename(columns={'HomeTeam':'team','AwayTeam':'opponent',
                                       'HomeScore':'points_for','AwayScore':'points_against'},
                                       inplace=False)
@@ -100,8 +101,40 @@ away_view = away_view.rename(columns={'HomeTeam':'opponent','AwayTeam':'team',
                                       inplace=False)
 
 
-
+#creating columns and filling the values with 1 or 0
+#to indicate if team is home in home and away views
 home_view['is_home'] = 1
 away_view['is_home'] = 0
 
-game = pd.concat([home_view,away_view], axis = 0)
+home_away_views = pd.concat([home_view,away_view], axis = 0, ignore_index=True)
+
+#mask
+did_team_win = home_away_views['points_for'] > home_away_views['points_against']
+
+#using mask in column, converting to int (binary 1s and 0s) and assigning to wins column
+home_away_views['win'] = did_team_win.astype(int)
+
+#not a mask since we are getting an actual value and it doesnt lead to a boolean
+point_diff = home_away_views['points_for'] - home_away_views['points_against']
+
+#assinging points diff to column
+home_away_views['point_diff'] = point_diff
+
+#sorting df by team, game date and game id
+#its in order the sorting, so first we sort by teams
+#then within that teams sort we sort by the game dates and so on
+sorted_view = home_away_views.sort_values(by = ['team','game_date', 'game_id'], ascending=True)
+
+
+#implementing games played per team
+team_gp = sorted_view.groupby('team').cumcount()
+#group by is ued to find subset of rows in a column that share the same key values
+#in this example pandas splits the table into mini tables, one mini table per unique team
+#then it stitches the results back into the orignal rows in teh right places
+
+#cumcount is cumulative counts is used on groupby objects and it generates a new series 
+#basically then it shows amount of time each mini table (class) shows up
+
+
+#now per season
+team_gp_ps = sorted_view.groupby(['team', 'Season']).cumcount()
