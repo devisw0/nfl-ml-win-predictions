@@ -150,8 +150,45 @@ sorted_view['roll_win_pct'] = sorted_view.groupby('team')['win'].transform(lambd
 
 sorted_view['roll_pd_avg'] = sorted_view.groupby('team')['point_diff'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
 
-print(sorted_view)
+# print(sorted_view)
 
 roll_features_list = ['roll_win_pct', 'roll_pd_avg', 'team_games_played', 'team_games_played_per_season' ]
 
-roll_features = sorted_view[roll_features_list]
+# roll_features = sorted_view[roll_features_list]
+
+#making a home df with our rolls features list (is_home = 1)
+home_roll_features = sorted_view[sorted_view['is_home']==1]
+
+#now only using columns we want
+home_roll_features = home_roll_features[['game_id'] + roll_features_list]
+print(home_roll_features.head())
+
+#now for away
+away_roll_features = sorted_view[sorted_view['is_home'] == 0]
+away_roll_features = away_roll_features[['game_id'] + roll_features_list]
+print(away_roll_features.head())
+
+#renaming the columns to prepare them for merging
+home_roll_features = home_roll_features.rename(columns={'roll_win_pct':'home_roll_win_pct', 
+                                                        'roll_pd_avg': 'home_roll_pd_avg', 
+                                                         'team_games_played': 'home_team_games_played',
+                                                           'team_games_played_per_season': 'home_team_games_played_per_season'}, 
+                                                           inplace=False)
+
+away_roll_features = away_roll_features.rename(columns={'roll_win_pct':'away_roll_win_pct', 
+                                                        'roll_pd_avg': 'away_roll_pd_avg', 
+                                                         'team_games_played': 'away_team_games_played',
+                                                           'team_games_played_per_season': 'away_team_games_played_per_season'}, 
+                                                           inplace=False)
+
+assert home_roll_features['game_id'].duplicated().sum() == 0
+
+assert away_roll_features['game_id'].duplicated().sum() == 0
+
+assert set(home_roll_features.columns)
+
+#left merging with games df
+games = pd.merge(games, home_roll_features, on='game_id', how='left', validate='one_to_one')
+games = pd.merge(games, away_roll_features, on='game_id', how='left', validate='one_to_one')
+
+print(games.tail())
