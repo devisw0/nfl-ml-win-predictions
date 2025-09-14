@@ -148,5 +148,4 @@ N = 5
 #nan values allowed
 sorted_view['roll_win_pct'] = sorted_view['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
 
-sorted_view['roll_win_pct'] = sorted_view['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
-
+sorted_view['roll_pd_avg'] = sorted_view['point_diff'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
