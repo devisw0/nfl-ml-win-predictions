@@ -138,3 +138,15 @@ team_gp = sorted_view.groupby('team').cumcount()
 
 #now per season
 team_gp_ps = sorted_view.groupby(['team', 'Season']).cumcount()
+
+#caluclating winrate in past 5 games
+#N number of games we looked at last won (past 5 won etc)
+N = 5
+
+#shifting down win values so df not provided wih win/loss value for game it is corrently on
+#rolling calculation to get the mean in past 5 games. N is how many values at a time, min_periods means at least specified
+#nan values allowed
+sorted_view['roll_win_pct'] = sorted_view['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
+
+sorted_view['roll_win_pct'] = sorted_view['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
+
