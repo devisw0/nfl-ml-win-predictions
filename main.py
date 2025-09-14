@@ -127,7 +127,7 @@ sorted_view = home_away_views.sort_values(by = ['team','game_date', 'game_id'], 
 
 
 #implementing games played per team
-team_gp = sorted_view.groupby('team').cumcount()
+sorted_view['team_games_played'] = sorted_view.groupby('team').cumcount()
 #group by is ued to find subset of rows in a column that share the same key values
 #in this example pandas splits the table into mini tables, one mini table per unique team
 #then it stitches the results back into the orignal rows in teh right places
@@ -137,7 +137,7 @@ team_gp = sorted_view.groupby('team').cumcount()
 
 
 #now per season
-team_gp_ps = sorted_view.groupby(['team', 'Season']).cumcount()
+sorted_view['team_games_played_per_season']= sorted_view.groupby(['team', 'Season']).cumcount()
 
 #caluclating winrate in past 5 games
 #N number of games we looked at last won (past 5 won etc)
@@ -146,6 +146,12 @@ N = 5
 #shifting down win values so df not provided wih win/loss value for game it is corrently on
 #rolling calculation to get the mean in past 5 games. N is how many values at a time, min_periods means at least specified
 #nan values allowed
-sorted_view['roll_win_pct'] = sorted_view['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
+sorted_view['roll_win_pct'] = sorted_view.groupby('team')['win'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
 
-sorted_view['roll_pd_avg'] = sorted_view['point_diff'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
+sorted_view['roll_pd_avg'] = sorted_view.groupby('team')['point_diff'].transform(lambda s: s.shift(1).rolling(N , min_periods = 1).mean())
+
+print(sorted_view)
+
+roll_features_list = ['roll_win_pct', 'roll_pd_avg', 'team_games_played', 'team_games_played_per_season' ]
+
+roll_features = sorted_view[roll_features_list]
