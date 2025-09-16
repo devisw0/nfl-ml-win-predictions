@@ -187,8 +187,19 @@ assert away_roll_features['game_id'].duplicated().sum() == 0
 
 assert set(home_roll_features.columns)
 
+previous_lenght = len(games)
+
 #left merging with games df
 games = pd.merge(games, home_roll_features, on='game_id', how='left', validate='one_to_one')
 games = pd.merge(games, away_roll_features, on='game_id', how='left', validate='one_to_one')
 
 print(games.tail())
+
+after_legnth = len(games)
+
+assert previous_lenght == after_legnth
+
+#we are doing probability that home team wins with logistic regression
+#So we are setting our Y value to the home win binary column (what we want to find out from our X)
+Y = games['home_win_binary']
+
