@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
 
 df = pd.read_csv('2017-2025_scores.csv')
 
@@ -137,7 +139,7 @@ sorted_view['team_games_played'] = sorted_view.groupby('team').cumcount()
 
 
 #now per season
-#grouping by teams and then once grouped by teams we then list them in order by season
+#grouping by team and season, we create a team-season class
 sorted_view['team_games_played_per_season']= sorted_view.groupby(['team', 'Season']).cumcount()
 
 #caluclating winrate in past 5 games
@@ -190,7 +192,7 @@ assert set(home_roll_features.columns)
 
 previous_lenght = len(games)
 
-#left merging with games df
+#left merging with games df, if column not in the left then not included, if not in right then for merged values from right its nans
 games = pd.merge(games, home_roll_features, on='game_id', how='left', validate='one_to_one')
 games = pd.merge(games, away_roll_features, on='game_id', how='left', validate='one_to_one')
 
@@ -200,7 +202,25 @@ after_legnth = len(games)
 
 assert previous_lenght == after_legnth
 
+
+
+feature_cols = ['home_roll_win_pct', 'away_roll_win_pct', 'home_roll_pd_avg', 'away_roll_pd_avg', 'home_team_games_played', 
+                     'away_team_games_played', 'home_team_games_played_per_season', 'away_team_games_played_per_season']
+
+model_df = games[feature_cols + ['game_id','game_date', 'home_win_binary']]
+
+model_df = model_df.dropna(subset=feature_cols)
+
+print(model_df[feature_cols].isna().sum())
+
+
+#what values will we use to found our output? (X)
+X = model_df[feature_cols]
 #we are doing probability that home team wins with logistic regression
 #So we are setting our Y value to the home win binary column (what we want to find out from our X)
-Y = games['home_win_binary']
+Y = model_df['home_win_binary']
 
+#in logistic regression we want to keep 20% to train and 80% to test (hence test_size = 0.2)
+#random_state is just some random state, like a seed
+#stratify is a paraemter we set equal to why such that Y is ALSO split 20 for test and 80 for training like how X will be split
+X_train, X_test, Y_train, y_test = train_test_split(X,Y,test_size=0.2, random_state=42, stratify=Y)
