@@ -137,6 +137,7 @@ sorted_view['team_games_played'] = sorted_view.groupby('team').cumcount()
 
 
 #now per season
+#grouping by teams and then once grouped by teams we then list them in order by season
 sorted_view['team_games_played_per_season']= sorted_view.groupby(['team', 'Season']).cumcount()
 
 #caluclating winrate in past 5 games
