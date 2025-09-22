@@ -213,6 +213,17 @@ model_df = model_df.dropna(subset=feature_cols)
 
 print(model_df[feature_cols].isna().sum())
 
+#setting 80% of the values less than or equal to the value as our cut off (training data) 
+game_date_cutoff = model_df['game_date'].quantile(0.8)
+#gives us some value that is 80% thru the dates
+
+#making a training mask for dates less than the cutoff
+training_mask = model_df['game_date'] < game_date_cutoff
+
+#now for the testing mask
+testing_mask = model_df['game_date'] >= game_date_cutoff
+
+
 
 #what values will we use to found our output? (X)
 X = model_df[feature_cols]
@@ -220,7 +231,8 @@ X = model_df[feature_cols]
 #So we are setting our Y value to the home win binary column (what we want to find out from our X)
 Y = model_df['home_win_binary']
 
-#in logistic regression we want to keep 20% to train and 80% to test (hence test_size = 0.2)
-#random_state is just some random state, like a seed
-#stratify is a paraemter we set equal to why such that Y is ALSO split 20 for test and 80 for training like how X will be split
-X_train, X_test, Y_train, y_test = train_test_split(X,Y,test_size=0.2, random_state=42, stratify=Y)
+X_train = X[training_mask]
+X_test = X[testing_mask]
+
+Y_train = Y[training_mask]
+Y_test = Y[testing_mask]
