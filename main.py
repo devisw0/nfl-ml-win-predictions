@@ -231,8 +231,10 @@ X = model_df[feature_cols]
 #So we are setting our Y value to the home win binary column (what we want to find out from our X)
 Y = model_df['home_win_binary']
 
+#we basically are using the model we have from X and the series from Y and taking the rows where the mask is true for the specified mask and df/series
 X_train = X[training_mask]
 X_test = X[testing_mask]
 
 Y_train = Y[training_mask]
 Y_test = Y[testing_mask]
+
