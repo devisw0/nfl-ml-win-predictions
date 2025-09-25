@@ -238,3 +238,9 @@ X_test = X[testing_mask]
 Y_train = Y[training_mask]
 Y_test = Y[testing_mask]
 
+assert training_mask.equals(model_df['game_date'] < game_date_cutoff)
+assert testing_mask.equals(model_df['game_date'] >= game_date_cutoff)
+
+
+assert not X_train.isna().any().any()
+assert not X_test.isna().any().any()
