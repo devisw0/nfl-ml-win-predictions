@@ -2,6 +2,11 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
+import sklearn
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 df = pd.read_csv('2017-2025_scores.csv')
 
@@ -261,3 +266,4 @@ else:
 
 
 
+sklearn.pipeline(StandardScaler(),LogisticRegression() )
