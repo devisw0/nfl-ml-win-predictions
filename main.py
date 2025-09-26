@@ -260,5 +260,4 @@ else:
     baseline_accuracy = 1 - Y_test.mean()
 
 
-Y_test
 
