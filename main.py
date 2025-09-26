@@ -266,4 +266,10 @@ else:
 
 
 
-sklearn.pipeline(StandardScaler(),LogisticRegression() )
+pipe = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(max_iter=1000, random_state=42))])
+
+pipe.fit(X_train, Y_train)
+
+y_pred = pipe.predict(X_test)
+
+y_prob = pipe.predict_proba(X_test)[:, 1]
