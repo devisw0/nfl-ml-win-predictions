@@ -244,3 +244,21 @@ assert testing_mask.equals(model_df['game_date'] >= game_date_cutoff)
 
 assert not X_train.isna().any().any()
 assert not X_test.isna().any().any()
+
+print("Ytrain head")
+
+#values to figure out if win or loss is more frequent
+Win_more_frequent = (Y_train == 1).sum()
+Loss_more_frequet = (Y_train == 0).sum()
+
+#getting majority class
+if Win_more_frequent > Loss_more_frequet:
+    majority_class = 1
+    baseline_accuracy = Y_test.mean()
+else:
+    majority_class = 0
+    baseline_accuracy = 1 - Y_test.mean()
+
+
+Y_test
+
