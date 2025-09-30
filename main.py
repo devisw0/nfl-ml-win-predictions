@@ -203,3 +203,6 @@ assert previous_lenght == after_legnth
 #So we are setting our Y value to the home win binary column (what we want to find out from our X)
 Y = games['home_win_binary']
 
+X = games[roll_features_list]
+
+print(X)
