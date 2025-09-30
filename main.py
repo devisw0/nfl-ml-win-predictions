@@ -1,5 +1,12 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+import sklearn
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 df = pd.read_csv('2017-2025_scores.csv')
 
@@ -137,6 +144,7 @@ sorted_view['team_games_played'] = sorted_view.groupby('team').cumcount()
 
 
 #now per season
+#grouping by team and season, we create a team-season class
 sorted_view['team_games_played_per_season']= sorted_view.groupby(['team', 'Season']).cumcount()
 
 #caluclating winrate in past 5 games
@@ -189,7 +197,7 @@ assert set(home_roll_features.columns)
 
 previous_lenght = len(games)
 
-#left merging with games df
+#left merging with games df, if column not in the left then not included, if not in right then for merged values from right its nans
 games = pd.merge(games, home_roll_features, on='game_id', how='left', validate='one_to_one')
 games = pd.merge(games, away_roll_features, on='game_id', how='left', validate='one_to_one')
 
@@ -199,10 +207,69 @@ after_legnth = len(games)
 
 assert previous_lenght == after_legnth
 
+
+
+feature_cols = ['home_roll_win_pct', 'away_roll_win_pct', 'home_roll_pd_avg', 'away_roll_pd_avg', 'home_team_games_played', 
+                     'away_team_games_played', 'home_team_games_played_per_season', 'away_team_games_played_per_season']
+
+model_df = games[feature_cols + ['game_id','game_date', 'home_win_binary']]
+
+model_df = model_df.dropna(subset=feature_cols)
+
+print(model_df[feature_cols].isna().sum())
+
+#setting 80% of the values less than or equal to the value as our cut off (training data) 
+game_date_cutoff = model_df['game_date'].quantile(0.8)
+#gives us some value that is 80% thru the dates
+
+#making a training mask for dates less than the cutoff
+training_mask = model_df['game_date'] < game_date_cutoff
+
+#now for the testing mask
+testing_mask = model_df['game_date'] >= game_date_cutoff
+
+
+
+#what values will we use to found our output? (X)
+X = model_df[feature_cols]
 #we are doing probability that home team wins with logistic regression
 #So we are setting our Y value to the home win binary column (what we want to find out from our X)
-Y = games['home_win_binary']
+Y = model_df['home_win_binary']
 
-X = games[roll_features_list]
+#we basically are using the model we have from X and the series from Y and taking the rows where the mask is true for the specified mask and df/series
+X_train = X[training_mask]
+X_test = X[testing_mask]
 
-print(X)
+Y_train = Y[training_mask]
+Y_test = Y[testing_mask]
+
+assert training_mask.equals(model_df['game_date'] < game_date_cutoff)
+assert testing_mask.equals(model_df['game_date'] >= game_date_cutoff)
+
+
+assert not X_train.isna().any().any()
+assert not X_test.isna().any().any()
+
+print("Ytrain head")
+
+#values to figure out if win or loss is more frequent
+Win_more_frequent = (Y_train == 1).sum()
+Loss_more_frequet = (Y_train == 0).sum()
+
+#getting majority class
+if Win_more_frequent > Loss_more_frequet:
+    majority_class = 1
+    baseline_accuracy = Y_test.mean()
+else:
+    majority_class = 0
+    baseline_accuracy = 1 - Y_test.mean()
+
+
+
+pipe = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(max_iter=1000, random_state=42))])
+
+pipe.fit(X_train, Y_train)
+
+y_pred = pipe.predict(X_test)
+
+y_prob = pipe.predict_proba(X_test)[:, 1]
